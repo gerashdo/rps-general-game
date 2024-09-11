@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 
+const AsciiTable = require('ascii-table')
+
 class KeyGenerator {
     static generateKey() {
         return crypto.randomBytes(32).toString('hex'); // 256-bit key
@@ -15,6 +17,7 @@ class HMACGenerator {
 class GameRules {
     constructor(moves) {
         this.moves = moves;
+        this.rulesTable = this.createTable();
     }
 
     determineWinner(userMoveIndex, computerMoveIndex) {
@@ -27,34 +30,29 @@ class GameRules {
         return difference <= half ? 'You lose!' : 'You win!';
     }
 
-    displayHelpTable() {
+    createTable() {
       const n = this.moves.length;
-      const table = [];
+      const table = new AsciiTable('Rules');
+      table.setHeading('v PC/User >', ...this.moves)
 
-      // Build header row
-      let headerRow = `| v PC/User > | ${this.moves.map(move => `${move}`).join(' | ')} |`;
-      let separator = `+${'-'.repeat(headerRow.length - 2)}+`;
-
-      table.push(separator);
-      table.push(headerRow);
-      table.push(separator);
-
-      // Build rows
       for (let i = 0; i < n; i++) {
-          let row = `| ${this.moves[i].padEnd(11)} |`;
+          let row = [];
           for (let j = 0; j < n; j++) {
               if (i === j) {
-                  row += ' Draw '.padEnd(7) + '|';
+                  row.push('Draw');
               } else {
                   const result = this.determineWinner(j, i);
-                  row += (result === 'You win!' ? ' Win ' : ' Lose ').padEnd(7) + '|';
+                  row.push( result === 'You win!' ? 'Win' : 'Lose');
               }
           }
-          table.push(row);
-          table.push(separator);
+          table.addRow(this.moves[i], ...row);
       }
 
-      table.forEach(line => console.log(line));
+      return table;
+    }
+
+    displayHelpTable() {
+      console.log(this.rulesTable.toString());
     }
 }
 
@@ -109,14 +107,12 @@ class Game {
     }
 }
 
-// Validate input
 const args = process.argv.slice(2);
 if (args.length < 3 || args.length % 2 === 0 || new Set(args).size !== args.length) {
-    console.error('Error: Please provide an odd number (>= 3) of unique moves.');
+    console.error('Error: Please provide an odd number (greater or equal than 3) of unique moves.');
     console.error('Example: node game.js rock paper scissors');
     process.exit(1);
 }
 
-// Start the game
 const game = new Game(args);
 game.start();

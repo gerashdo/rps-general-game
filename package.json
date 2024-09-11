@@ -1,0 +1,15 @@
+{
+  "name": "generalized_game",
+  "version": "1.0.0",
+  "description": "Generalized rock-paper-scissors game",
+  "main": "index.js",
+  "scripts": {
+    "start": "node game.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ascii-table": "^0.0.9"
+  }
+}
